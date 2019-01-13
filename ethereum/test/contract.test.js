@@ -76,8 +76,7 @@ describe("fileAuthorContract", () => {
         from: accounts[0]
       });
       assert.equal(flag, true, "the file is not saved");
-      const owner = await fileAuthorContract.methods.getOwner("abcd").call();
-      assert.equal(owner, accounts[0], "did not return the right owner");
-
-  })
+      const FileDetails = await fileAuthorContract.methods.getFileDetails("abcd").call();
+      assert.equal(FileDetails.owner, accounts[0],"the owner is not assigned correctly");
+  });
 });

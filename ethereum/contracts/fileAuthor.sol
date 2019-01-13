@@ -21,12 +21,9 @@ contract fileAuthor{
         number_of_files_owner_owns[msg.sender]++;
         return true;
     }
-    function getOwner(string memory fileHash) public view returns (address){
+    function getFileDetails(string memory fileHash) public view returns (address owner, uint timeStamp){
         require(savedFilesProperties[fileHash].flag,"checks if the file exists");
-        return savedFilesProperties[fileHash].owner;
-    }
-    function getFileTimeStamp(string memory fileHash) public view returns (uint){
-        require(savedFilesProperties[fileHash].flag,"checks if the file exists");
-        return savedFilesProperties[fileHash].timeStamp;
+        owner = savedFilesProperties[fileHash].owner;
+        timeStamp = savedFilesProperties[fileHash].timeStamp;
     }
 }
