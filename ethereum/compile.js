@@ -27,7 +27,6 @@ const input = {
 
 let output = JSON.stringify(JSON.parse(solc.compile(JSON.stringify(input))),null,2);
 output = JSON.parse(output);
-// fs.writeFileSync("temp.json",output);
 
 fs.ensureDir(buildPath);
 for( let contract in output.contracts["fileAuthor"]){
@@ -35,4 +34,8 @@ for( let contract in output.contracts["fileAuthor"]){
         path.resolve(buildPath, contract+'.json'),
         output.contracts["fileAuthor"][contract]
     );
+    fs.writeFileSync(
+        path.resolve(buildPath, contract+'_pretter.json'),
+        JSON.stringify(output.contracts["fileAuthor"][contract],null,2)
+    )
 }
