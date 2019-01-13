@@ -2,8 +2,13 @@ const assert = require("assert");
 const ganache = require("ganache-cli");
 const Web3 = require("web3");
 const web3 = new Web3(ganache.provider());
+const path = require('path');
 
-const fileAuthorJSON = require("../ethereum/build/fileAuthor.json");
+const pathDir = path.resolve(__dirname, "..", "build", "fileAuthor.json");
+
+// const fileAuthorJSON = require("../ethereum/build/fileAuthor.json");
+const fileAuthorJSON = require(pathDir);
+
 
 let accounts;
 var fileAuthorContract;
