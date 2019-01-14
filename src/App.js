@@ -3,12 +3,15 @@ import "./App.css";
 import { Button, Input } from "semantic-ui-react";
 import sha256 from "sha256";
 import fileAuthorContract from "./contractHelper/fileAuthor";
-import web3 from './contractHelper/web3'
+import web3 from "./contractHelper/web3";
 
 class App extends Component {
   hash = "";
   state = {
-    buttonPressed: false
+    message: "",
+    owner: "",
+    timeStamp: "",
+    loading: ""
   };
 
   generateFileHash = file => {
@@ -26,46 +29,48 @@ class App extends Component {
     }
   };
   submit = async () => {
-    if (this.state.buttonPressed) {
-      this.setState({ buttonPressed: false });
-    }
     const flag = await this.checkForFile();
     console.log("Check for life returned:" + flag);
     if (!flag) {
       await this.addFileToContract();
-    } else{
+    } else {
       console.log("the file is already in the contract");
+      this.setState({ message: "the file is already in the contract" });
       await this.fileDetails();
     }
   };
 
   checkForFile = async () => {
     console.log("check for file called");
-    const flag = await fileAuthorContract.methods.checkForFile(this.hash).call();
+    const flag = await fileAuthorContract.methods
+      .checkForFile(this.hash)
+      .call();
     console.log(flag);
     return flag;
   };
 
   addFileToContract = async () => {
     let accounts = [];
-    
-    try{
+
+    try {
       accounts = await web3.eth.getAccounts();
-    }catch(e){
+    } catch (e) {
       console.log("cannot get accounts");
     }
     console.log("AddFileToContractCalled");
+    this.setState({ loading: "waiting for transaction to be completed" });
     try {
       const flag = await fileAuthorContract.methods.addFile(this.hash).call({
         from: accounts[0]
       });
-      console.log("call executed"+flag);
+      console.log("call executed" + flag);
       const reciept = await fileAuthorContract.methods.addFile(this.hash).send({
         from: accounts[0]
       });
       console.log("send the transaction: " + reciept);
       if (flag) {
         console.log("the file is saved into the contract");
+        this.setState({ message1: "the file is saved into the contract" });
       }
     } catch (e) {
       for (let key in e.results) {
@@ -80,14 +85,43 @@ class App extends Component {
       }
     }
     console.log("Done Adding file to the contract");
+    this.setState({ loading: "transaction completed" });
   };
 
   fileDetails = async () => {
-    const FileDetails = await fileAuthorContract.methods.getFileDetails(this.hash).call();
-    console.log("Owner:"+FileDetails.owner);
-    console.log("timeStamp:"+FileDetails.timeStamp);
+    const FileDetails = await fileAuthorContract.methods
+      .getFileDetails(this.hash)
+      .call();
+    console.log("Owner:" + FileDetails.owner);
+    console.log("timeStamp:" + FileDetails.timeStamp);
+    const date = new Date(FileDetails.timeStamp * 1000);
+    const formatedDate = this.GetFormattedDate(date);
+    this.setState({
+      owner: "Owner:" + FileDetails.owner,
+      timeStamp: "timeStamp:" + formatedDate
+    });
+  };
 
-  }
+  GetFormattedDate = date => {
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    var month = date.getMonth();
+    var day = date.getDate();
+    var year = date.getFullYear();
+    return day + "/" + monthNames[month] + "/" + year;
+  };
 
   render() {
     return (
@@ -103,6 +137,15 @@ class App extends Component {
         <Button primary onClick={this.submit}>
           Upload
         </Button>
+        <div>
+          <h1>{this.state.message}</h1>
+          <br />
+          <h1>{this.state.loading}</h1>
+          <br />
+          <h1>{this.state.owner}</h1>
+          <br />
+          <h1>{this.state.timeStamp}</h1>
+        </div>
       </div>
     );
   }
