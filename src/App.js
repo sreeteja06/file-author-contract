@@ -4,6 +4,7 @@ import sha256 from "sha256";
 import fileAuthorContract from "./contractHelper/fileAuthor";
 import web3 from "./contractHelper/web3";
 import FileUpload from "./components/FileUpload/FileUpload";
+import { Loader, Message, Card } from "semantic-ui-react";
 
 class App extends Component {
   hash = "";
@@ -12,9 +13,9 @@ class App extends Component {
     errMessage: null,
     owner: "",
     timeStamp: "",
-    loading: ""
+    loading: null,
+    showFileDetails: false
   };
-
 
   generateFileHash = file => {
     this.fetchAccounts();
@@ -32,13 +33,27 @@ class App extends Component {
     }
   };
   submit = async () => {
+    this.setState({
+      errMessage: null,
+      owner: "",
+      timeStamp: "",
+      loading: null,
+      showFileDetails: false
+    });
+
     const flag = await this.checkForFile();
     console.log("Check for life returned:" + flag);
     if (!flag) {
       await this.addFileToContract();
     } else {
       console.log("the file is already in the contract");
-      this.setState({ errMessage: "the file is already in the contract" });
+      this.setState({
+        errMessage: (
+          <Message warning>
+            <Message.Header>the file is already in the contract</Message.Header>
+          </Message>
+        )
+      });
       await this.fileDetails();
     }
   };
@@ -58,7 +73,7 @@ class App extends Component {
     } catch (e) {
       console.log("cannot get accounts");
     }
-  }
+  };
 
   addFileToContract = async () => {
     console.log("AddFileToContractCalled");
@@ -89,7 +104,7 @@ class App extends Component {
       }
     }
     console.log("Done Adding file to the contract");
-    this.setState({ loading: "transaction completed" });
+    this.setState({ loading: null });
   };
 
   fileDetails = async () => {
@@ -101,7 +116,8 @@ class App extends Component {
     const date = new Date(FileDetails.timeStamp * 1000);
     const formatedDate = this.GetFormattedDate(date);
     this.setState({
-      owner: "Owner:" + FileDetails.owner,
+      showFileDetails: true,
+      owner: "Owner: " + FileDetails.owner,
       timeStamp: "timeStamp:" + formatedDate
     });
   };
@@ -137,12 +153,18 @@ class App extends Component {
           click={this.submit}
         />
         <div>
-          <h1>{this.state.errMessage}</h1>
-          <h1>{this.state.loading}</h1>
-          <h1>{this.state.owner}</h1>
-          <h1>{this.state.timeStamp}</h1>
+          {this.state.errMessage}
+          <Loader active={this.state.loading} inline="centered">
+            {this.state.loading}
+          </Loader>
+            {this.state.showFileDetails?
+            <Card fluid>
+              <Card.Content header="About File" />
+              <Card.Content description={this.state.owner} />
+              <Card.Content extra>{this.state.timeStamp}</Card.Content>
+            </Card>:null}
+          </div>
         </div>
-      </div>
     );
   }
 }
