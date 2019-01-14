@@ -1,20 +1,23 @@
 import React, { Component } from "react";
 import "./App.css";
-import { Button, Input } from "semantic-ui-react";
 import sha256 from "sha256";
 import fileAuthorContract from "./contractHelper/fileAuthor";
 import web3 from "./contractHelper/web3";
+import FileUpload from "./components/FileUpload/FileUpload";
 
 class App extends Component {
   hash = "";
+  accounts = [];
   state = {
-    message: "",
+    errMessage: null,
     owner: "",
     timeStamp: "",
     loading: ""
   };
 
+
   generateFileHash = file => {
+    this.fetchAccounts();
     if (file !== undefined) {
       if (window.File && window.FileReader && window.FileList && window.Blob) {
         let reader = new FileReader();
@@ -35,7 +38,7 @@ class App extends Component {
       await this.addFileToContract();
     } else {
       console.log("the file is already in the contract");
-      this.setState({ message: "the file is already in the contract" });
+      this.setState({ errMessage: "the file is already in the contract" });
       await this.fileDetails();
     }
   };
@@ -49,23 +52,24 @@ class App extends Component {
     return flag;
   };
 
-  addFileToContract = async () => {
-    let accounts = [];
-
+  fetchAccounts = async () => {
     try {
-      accounts = await web3.eth.getAccounts();
+      this.accounts = await web3.eth.getAccounts();
     } catch (e) {
       console.log("cannot get accounts");
     }
+  }
+
+  addFileToContract = async () => {
     console.log("AddFileToContractCalled");
     this.setState({ loading: "waiting for transaction to be completed" });
     try {
       const flag = await fileAuthorContract.methods.addFile(this.hash).call({
-        from: accounts[0]
+        from: this.accounts[0]
       });
       console.log("call executed" + flag);
       const reciept = await fileAuthorContract.methods.addFile(this.hash).send({
-        from: accounts[0]
+        from: this.accounts[0]
       });
       console.log("send the transaction: " + reciept);
       if (flag) {
@@ -126,24 +130,16 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <h1>Hello World from FILE-AUTHOR</h1>
-        <Input
-          type="file"
-          onChange={e => {
-            this.generateFileHash(e.target.files[0]);
-          }}
-          placeholder="Upload file"
+        <h2>FILE-AUTHOR</h2>
+        <br />
+        <FileUpload
+          change={e => this.generateFileHash(e.target.files[0])}
+          click={this.submit}
         />
-        <Button primary onClick={this.submit}>
-          Upload
-        </Button>
         <div>
-          <h1>{this.state.message}</h1>
-          <br />
+          <h1>{this.state.errMessage}</h1>
           <h1>{this.state.loading}</h1>
-          <br />
           <h1>{this.state.owner}</h1>
-          <br />
           <h1>{this.state.timeStamp}</h1>
         </div>
       </div>
