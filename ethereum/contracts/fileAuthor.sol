@@ -8,11 +8,9 @@ contract fileAuthor{
     }
     mapping (string=>FileProperties) savedFilesProperties;
     mapping (address=>uint) number_of_files_owner_owns;
-    
     function checkForFile(string memory fileHash) public view returns (bool){
         return savedFilesProperties[fileHash].flag;
     }
-    
     function addFile(string memory fileHash) public returns (bool){
         require(!savedFilesProperties[fileHash].flag,"checks if the file already exists");
         savedFilesProperties[fileHash].flag = true;
