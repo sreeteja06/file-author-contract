@@ -5,6 +5,7 @@ import fileAuthorContract from "./contractHelper/fileAuthor";
 import web3 from "./contractHelper/web3";
 import FileUpload from "./components/FileUpload/FileUpload";
 import { Loader, Message, Card } from "semantic-ui-react";
+import privateKey from './contractHelper/private'
 
 class App extends Component {
   hash = "";
@@ -70,6 +71,10 @@ class App extends Component {
   fetchAccounts = async () => {
     try {
       this.accounts = await web3.eth.getAccounts();
+      this.accounts = await web3.eth.accounts.privateKeyToAccount( privateKey );
+      // this.accounts = await web3.eth.accounts.create();
+      this.accounts = this.accounts
+      console.log("accounts: "+ this.accounts);
     } catch (e) {
       console.log("cannot get accounts");
     }
@@ -79,18 +84,24 @@ class App extends Component {
     console.log("AddFileToContractCalled");
     this.setState({ loading: "waiting for transaction to be completed" });
     try {
-      const flag = await fileAuthorContract.methods.addFile(this.hash).call({
-        from: this.accounts[0]
-      });
-      console.log("call executed" + flag);
-      const reciept = await fileAuthorContract.methods.addFile(this.hash).send({
-        from: this.accounts[0]
-      });
-      console.log("send the transaction: " + reciept);
-      if (flag) {
-        console.log("the file is saved into the contract");
-        this.setState({ message1: "the file is saved into the contract" });
-      }
+      const tx_builder = await fileAuthorContract.methods.addFile( this.hash );
+      const encoded_tx = tx_builder.encodeABI();
+      let transactionObject = {
+        gas: 6000000,
+        data: encoded_tx,
+        from: this.accounts.address,
+        to: "0xfa3865F1faAB581DE32db82AbA86C698c4bdCF34"
+      };
+      let signedTransaction = await web3.eth.accounts.signTransaction( transactionObject, this.accounts.privateKey, async function ( error, signedTx ) {
+        if ( error ) {
+          console.log( error );
+          // handle error
+        }
+      })
+      await web3.eth.sendSignedTransaction( signedTransaction.rawTransaction )
+        .on( 'receipt', function ( receipt ) {
+          //do something
+        } );
     } catch (e) {
       for (let key in e.results) {
         //checks for revert condition
