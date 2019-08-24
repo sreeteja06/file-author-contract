@@ -1,0 +1,24 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *     _____________  ___  
+      / ___/ ___/ _ \/ _ \ 
+     (__  ) /  /  __/  __/ 
+    /____/_/   \___/\___  
+ * File Created: Tuesday, 20th August 2019 8:18:08 pm
+ * Author: SreeTeja06 (sreeteja.muthyala@gmail.com)
+
+ */
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/start"
+        }
+    ]
+}

@@ -1,10 +1,21 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *     _____________  ___  
+      / ___/ ___/ _ \/ _ \ 
+     (__  ) /  /  __/  __/ 
+    /____/_/   \___/\___  
+ * File Created: Saturday, 24th August 2019 11:23:18 am
+ * Author: SreeTeja06 (sreeteja.muthyala@gmail.com)
+
+ */
 import React, { Component } from "react";
 import "./App.css";
-import sha256 from "sha256";
 import fileAuthorContract from "./contractHelper/fileAuthor";
 import web3 from "./contractHelper/web3";
 import FileUpload from "./components/FileUpload/FileUpload";
+import UserFilesList from "./components/UserFilesList/UserFileList";
 import { Loader, Message, Card } from "semantic-ui-react";
+let ipfsClient = require( 'ipfs-http-client' );
 
 class App extends Component {
   hash = "";
@@ -17,20 +28,24 @@ class App extends Component {
     showFileDetails: false
   };
 
-  generateFileHash = file => {
+  saveFile = file => {
+    this.file = file
+  }
+
+  generateFileHash = async() => {
+    let ipfs = ipfsClient( 'localhost', '5001' )
     this.fetchAccounts();
-    if (file !== undefined) {
-      if (window.File && window.FileReader && window.FileList && window.Blob) {
-        let reader = new FileReader();
-        reader.onload = event => {
-          this.hash = sha256(event.target.result);
-          console.log("hash : " + this.hash);
-        };
-        reader.readAsText(file);
-      } else {
-        alert("The File APIs are not fully supported in this browser.");
+    const files = [
+      {
+        path: "/tmp/" + this.file.name,
+        content: this.file
       }
-    }
+    ]
+    this.setState( { loading: "uploading file to ipfs" } );
+    let result = await ipfs.add( files )
+    console.log( "result of ipfs file upload" + JSON.stringify( result ) );
+    this.setState({ loading: null })
+    this.hash = result[1].hash;
   };
   submit = async () => {
     this.setState({
@@ -40,17 +55,19 @@ class App extends Component {
       loading: null,
       showFileDetails: false
     });
+    await this.generateFileHash();
 
     const flag = await this.checkForFile();
     console.log("Check for life returned:" + flag);
     if (!flag) {
       await this.addFileToContract();
     } else {
-      console.log("the file is already in the contract");
+      console.log(`the file is already in the contract
+      `);
       this.setState({
         errMessage: (
           <Message warning>
-            <Message.Header>the file is already in the contract</Message.Header>
+            <Message.Header>the file is already in the contract at </Message.Header>
           </Message>
         )
       });
@@ -117,6 +134,7 @@ class App extends Component {
     const formatedDate = this.GetFormattedDate(date);
     this.setState({
       showFileDetails: true,
+      address: `https://gateway.ipfs.io/ipfs/${ this.hash}`,
       owner: "Owner: " + FileDetails.owner,
       timeStamp: "timeStamp:" + formatedDate
     });
@@ -146,12 +164,14 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <h2>FILE-AUTHOR</h2>
+        <h2>Digital Notary</h2>
         <br />
+        <div style={{ "marginTop": "100px" }}>
         <FileUpload
-          change={e => this.generateFileHash(e.target.files[0])}
+          change={e => this.saveFile( e.target.files[0] )}
           click={this.submit}
         />
+        </div>
         <div>
           {this.state.errMessage}
           <Loader active={this.state.loading} inline="centered">
@@ -162,9 +182,13 @@ class App extends Component {
               <Card.Content header="About File" />
               <Card.Content description={this.state.owner} />
               <Card.Content extra>{this.state.timeStamp}</Card.Content>
+              <a href={this.state.address}>check the file</a>
             </Card>:null}
-          </div>
         </div>
+        <div style={{"marginTop":"150px"}}>
+          <UserFilesList dateFormatter={this.GetFormattedDate}></UserFilesList>
+        </div>
+      </div>
     );
   }
 }

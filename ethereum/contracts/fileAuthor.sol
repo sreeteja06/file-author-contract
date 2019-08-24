@@ -7,7 +7,7 @@ contract fileAuthor{
         bool flag;
     }
     mapping (string=>FileProperties) savedFilesProperties;
-    mapping (address=>uint) number_of_files_owner_owns;
+    mapping (address=>string[]) userFiles;
     function checkForFile(string memory fileHash) public view returns (bool){
         return savedFilesProperties[fileHash].flag;
     }
@@ -16,12 +16,20 @@ contract fileAuthor{
         savedFilesProperties[fileHash].flag = true;
         savedFilesProperties[fileHash].owner = msg.sender;
         savedFilesProperties[fileHash].timeStamp = now;
-        number_of_files_owner_owns[msg.sender]++;
+        userFiles[msg.sender].push(fileHash);
         return true;
     }
     function getFileDetails(string memory fileHash) public view returns (address owner, uint timeStamp){
         require(savedFilesProperties[fileHash].flag,"checks if the file exists");
         owner = savedFilesProperties[fileHash].owner;
+        timeStamp = savedFilesProperties[fileHash].timeStamp;
+    }
+    function getNumberOfUserFiles() public view returns (uint){
+        return userFiles[msg.sender].length;
+    }
+    function getUserFile(uint index) public view returns (string memory fileHash, uint timeStamp){
+        require(index < userFiles[msg.sender].length, "array index out of bound");
+        fileHash = userFiles[msg.sender][index];
         timeStamp = savedFilesProperties[fileHash].timeStamp;
     }
 }

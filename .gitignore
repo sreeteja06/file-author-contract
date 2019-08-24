@@ -23,3 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 /ethereum/seed.js
+src/contractHelper/private.js
+/ipfs
