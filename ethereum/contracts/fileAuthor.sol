@@ -5,6 +5,8 @@ contract fileAuthor{
         uint timeStamp;
         address owner;
         bool flag;
+        address[] signatures;
+        uint[] sigTimeStamps;
     }
     mapping (string=>FileProperties) savedFilesProperties;
     mapping (address=>string[]) userFiles;
@@ -31,5 +33,17 @@ contract fileAuthor{
         require(index < userFiles[msg.sender].length, "array index out of bound");
         fileHash = userFiles[msg.sender][index];
         timeStamp = savedFilesProperties[fileHash].timeStamp;
+    }
+    function signDocument( string memory fileHash) public returns (bool){
+        require(savedFilesProperties[fileHash].flag,"checks if the file exists");
+        savedFilesProperties[fileHash].signatures.push(msg.sender);
+        savedFilesProperties[fileHash].sigTimeStamps.push(now);
+        return true;
+    }
+    function getSignatures( string memory fileHash ) public view returns ( address[] memory ){
+        return savedFilesProperties[fileHash].signatures;
+    }
+    function getSignatureTimeStamps( string memory fileHash ) public view returns ( uint[] memory ){
+        return savedFilesProperties[fileHash].sigTimeStamps;
     }
 }

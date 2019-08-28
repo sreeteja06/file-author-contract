@@ -13,6 +13,7 @@ import fileAuthorContract from "../../contractHelper/fileAuthor";
 import web3 from "../../contractHelper/web3";
 
 import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom'
 
 class UserFileList extends Component{
     accounts = [];
@@ -43,7 +44,9 @@ class UserFileList extends Component{
         this.table = [];
         for(let j = 0; j < this.files.length ; j++){
             let hrefValue = `https://gateway.ipfs.io/ipfs/${ this.files[j].hash}`
+            let signHref = `/digdocsign?fileHash=${this.files[j].hash}`
             let date = this.props.dateFormatter(new Date(this.files[j].timeStamp * 1000))
+            //http://localhost:3000/digdocsign?fileHash=QmPmtUizVmtYXauQEPZATAjo76tvPeAnaAxYFejcE63374
             this.table.push(
                 <Table.Row>
                     <Table.Cell collapsing>
@@ -51,6 +54,7 @@ class UserFileList extends Component{
                     </Table.Cell>
                     <Table.Cell><a href = {hrefValue} >{this.files[j].hash}</a>    click</Table.Cell>
                     <Table.Cell>{date}</Table.Cell>
+                    <Table.Cell><NavLink to={signHref}><Button color="blue">Sign Link</Button></NavLink></Table.Cell>
                 </Table.Row>
             )
         }
