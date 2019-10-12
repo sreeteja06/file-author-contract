@@ -1,3 +1,18 @@
+[Digital Notary Signature WebDemo](https://digitalnotary.herokuapp.com "https://digitalnotary.herokuapp.com")
+###### Note: The Document upload and the document signatures won't work in the above link. If you wanna check those features also, run the application locally. You can find the details to how the run the application locally at the end of this readme.
+
+## Digital Notary Flow Diagram
+![Digital Notary Flow Diagram](https://github.com/sreeteja06/file-author-contract/blob/master/digNotaryDiag.png)
+
+## Digital Document Signature Flow Diagram
+![Digital Document Signature Flow Diagram](https://github.com/sreeteja06/file-author-contract/blob/master/digDocDiag.png)
+
+## Digital Notary Page
+![Digital Notary Page](https://github.com/sreeteja06/file-author-contract/blob/master/digNotaryWeb.png)
+
+## Digital Document Signature Page
+![Digital Document Signature Page](https://github.com/sreeteja06/file-author-contract/blob/master/digDocWeb.png)
+
 File author smart contract is used to protect the file identity i.e publicly verify signatures on a digital document without the need for a trusted third party member.
 
 Using the Ethereum blockchain, we can store a hash of a private document (a contract, for example) along with an Ethereum Address. This proves in a public and secure way that the owner of the Ethereum Address has signed the document. Other parties to the contract can sign it as well. All they need is a link to the signing page, which is generated when a user uploads a file.
@@ -24,4 +39,3 @@ git clone https://github.com/sreeteja06/file-author-contract.git
 cd file-author-contract
 npm start
 ```
-![alt text](https://github.com/sreeteja06/file-author-contract/blob/master/fileAuthor-blockchian-1.png)
