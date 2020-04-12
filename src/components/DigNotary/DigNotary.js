@@ -35,9 +35,9 @@ class DigNotary extends Component {
   //ipfs.infura.io protocol https
   generateFileHash = async () => {
     let host = 'localhost';
-    // host = "ipfs.infura.io"
-    // let ipfs = ipfsClient({ host, port:'5001', protocol: 'https' })
-    let ipfs = ipfsClient({ host, port: '5001' });
+    host = 'ipfs.infura.io';
+    let ipfs = ipfsClient({ host, port: '5001', protocol: 'https' });
+    // let ipfs = ipfsClient({ port: '5001', host: 'ipfs', protocol: 'http' });
     this.fetchAccounts();
     const files = [
       {
@@ -45,8 +45,11 @@ class DigNotary extends Component {
         content: this.file
       }
     ];
-    this.setState({ loading: 'uploading file to ipfs' });
+    this.setState({
+      loading: 'uploading file to ipfs'
+    });
     let result = await ipfs.add(files);
+    console.log(typeof result);
     console.log('result of ipfs file upload' + JSON.stringify(result));
     this.setState({ loading: null });
     this.hash = result[1].hash;
@@ -171,7 +174,7 @@ class DigNotary extends Component {
   render() {
     return (
       <div>
-        <NavBar navItem='notary'></NavBar>
+        <NavBar navItem='notary' />
         <h2>Digital Notary</h2>
         <br />
         <div style={{ marginTop: '100px' }}>
@@ -195,7 +198,7 @@ class DigNotary extends Component {
           ) : null}
         </div>
         <div style={{ marginTop: '150px', marginBottom: '130px' }}>
-          <UserFilesList dateFormatter={this.GetFormattedDate}></UserFilesList>
+          <UserFilesList dateFormatter={this.GetFormattedDate} />
         </div>
       </div>
     );

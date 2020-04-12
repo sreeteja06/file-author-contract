@@ -1,0 +1,25 @@
+version: '3.7'
+
+networks:
+  fileauthor:
+
+services:
+  fa:
+    container_name: fa
+    image: sreeteja06/fileauthor
+    restart: always
+    ports:
+      - 3000:80
+    networks:
+      - fileauthor
+
+  ipfs:
+    container_name: ipfs
+    image: ipfs/go-ipfs
+    restart: always
+    ports:
+      - 8080:8080
+      - 4001:4001
+      - 5001:5001
+    networks:
+      - fileauthor
